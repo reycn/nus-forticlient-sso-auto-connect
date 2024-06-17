@@ -9,7 +9,7 @@ Este repositório contém um script Python que automatiza o processo de conexão
 ## Funcionalidades
 
 - Instalação de pacotes necessários
-- Criptografia e descriptografia de senhas
+- Criptografia e descriptografia de senhas usando a biblioteca `cryptography`
 - Automação do login SSO utilizando Selenium
 - Suporte a execução manual do login
 - Conexão automática à VPN utilizando cookies gerados
@@ -33,9 +33,9 @@ Este repositório contém um script Python que automatiza o processo de conexão
     sudo apt install python3-dev python3-pip python3-setuptools
     vpn-auto-connect --install
     ```
-3. Adicione o caminho a variável PATH:
+3. Adicione o caminho à variável PATH:
    
-   Para maior comodidade adicione o caminho do script (`$HOME/forticlient-sso-auto-connect`) na variável PATH no ~/.bashrc ou ~/.zshrc como no exemplo abaixo:
+   Para maior comodidade, adicione o caminho do script (`$HOME/forticlient-sso-auto-connect`) na variável PATH no ~/.bashrc ou ~/.zshrc como no exemplo abaixo:
    ```sh
    export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$HOME/forticlient-sso-auto-connect:$PATH
    ```
@@ -57,9 +57,9 @@ Este repositório contém um script Python que automatiza o processo de conexão
         "vpn_slice": "..."
     }
     ```
-   Escolha uma das duas opções: `password` e `encrypted-password`. Caso deseje mais segurança, use a faça o procedimento abaixo, se não, a opção `password` é de preechimento obrigatório.
+   Escolha uma das duas opções: `password` e `encrypted-password`. Caso deseje mais segurança, siga o procedimento abaixo para criptografar a senha. Se não, a opção `password` é de preenchimento obrigatório.
 
-2. Criptografe a senha (opcional):
+2. Criptografe a senha (opcional e recomendado):
     ```bash
     vpn-auto-connect --encrypt
     ```
@@ -70,22 +70,27 @@ Este repositório contém um script Python que automatiza o processo de conexão
     vpn-auto-connect --help
     ```
     
-2. Conectar com login automático:
+2. Conectar com login automático (usando senha criptografada):
     ```bash
     vpn-auto-connect
     ```
 
-3. Conectar com login manual:
+3. Conectar com senha em texto claro (não recomendado):
+    ```bash
+    vpn-auto-connect --plain
+    ```
+
+4. Conectar com login manual:
     ```bash
     vpn-auto-connect --manual
     ```
 
-4. Conectar com LAN desabilitada:
+5. Conectar com LAN desabilitada:
     ```bash
     vpn-auto-connect --off
     ```
 
-5. Forçar a exibição do navegador durante o login SSO:
+6. Forçar a exibição do navegador durante o login SSO:
     ```bash
     vpn-auto-connect --browser
     ```

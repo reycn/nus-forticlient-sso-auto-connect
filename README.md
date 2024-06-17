@@ -48,10 +48,10 @@ Este repositório contém um script Python que automatiza o processo de conexão
         "password": "sua_senha",
         "encrypted-password": "sua_senha_criptografada",
         "host_mapping": {
-            "1": "vpn.example.com",
-            "2": "vpn2.example.com"
+            "1": "vpn1.exemplo.com.br",
+            "2": "vpn2.exemplo.com.br"
         },
-        "server_cert": "sha256:...",
+        "server_cert": "pin-sha256:...",
         "vpn_slice": "..."
     }
     ```

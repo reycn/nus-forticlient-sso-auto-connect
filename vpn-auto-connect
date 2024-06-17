@@ -19,7 +19,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-CONFIG_FILE = 'vpn-config.json'
+# Obtém o diretório onde o script está localizado
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(SCRIPT_DIR, 'vpn-config.json')
 
 def load_config():
     print('Carregando configuração.')
@@ -137,6 +139,26 @@ def keep_sudo_alive():
         os.system('sudo -v')
         time.sleep(60)
 
+def check_for_updates():
+    print('Verificando atualizações.')
+    result = subprocess.run(['git', 'fetch'], capture_output=True, text=True)
+    if result.returncode != 0:
+        raise Exception("Erro ao verificar atualizações.")
+    result = subprocess.run(['git', 'status'], capture_output=True, text=True)
+    if 'Your branch is up to date' in result.stdout:
+        print('Nenhuma atualização disponível.')
+        return False
+    else:
+        print('Atualizações disponíveis.')
+        return True
+
+def upgrade_script():
+    print('Atualizando script.')
+    result = subprocess.run(['git', 'pull'], capture_output=True, text=True)
+    if result.returncode != 0:
+        raise Exception("Erro ao atualizar script.")
+    print('Script atualizado com sucesso.')
+
 def parse_arguments():
     print('Configurando argumentos.')
     parser = argparse.ArgumentParser(description="Script unificado para conexão VPN.")
@@ -147,8 +169,8 @@ def parse_arguments():
     parser.add_argument('--host', type=int, choices=[1, 2], default=1, help='Define o host VPN para a conexão.')
     parser.add_argument('--encrypt', action='store_true', help='Criptografa a senha para ser usada no script.')
     parser.add_argument('--password', action='store_true', help='Sempre pede a senha do sudo para descriptografar a senha criptografada.')
-    parser.add_argument('--update', action='store_true', help='Verifica se há atualização do script')
-    parser.add_argument('--upgrade', action='store_true', help='Atualiza scritp')
+    parser.add_argument('--update', action='store_true', help='Verifica se há atualização do script.')
+    parser.add_argument('--upgrade', action='store_true', help='Atualiza o script.')
     return parser.parse_args()
 
 def main():
@@ -167,6 +189,17 @@ def main():
         config['encrypted-password'] = encrypted_password
         save_config(config)
         print("Senha criptografada salva no arquivo de configuração.")
+        return
+
+    if args.update:
+        if check_for_updates():
+            print("Há atualizações disponíveis. Use o parâmetro --upgrade para atualizar o script.")
+        else:
+            print("O script está atualizado.")
+        return
+
+    if args.upgrade:
+        upgrade_script()
         return
 
     if args.password:

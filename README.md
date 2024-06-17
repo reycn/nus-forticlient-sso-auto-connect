@@ -28,16 +28,12 @@ Este repositório contém um script Python que automatiza o processo de conexão
     git clone https://github.com/rafaelbiasi/forticlient-sso-auto-connect.git
     cd forticlient-sso-auto-connect
     ```
-2. Defina o `vpn-auto-connect` como executavel:
-   ```bash
-   chmod +x vpn-auto-connect
-   ```
-4. Instale as dependências:
+2. Instale as dependências:
     ```bash
     sudo apt install python3-dev python3-pip python3-setuptools
     vpn-auto-connect --install
     ```
-5. Variável PATH:
+3. Variável PATH:
    Para maior comodidade adicione o caminho do script (`$HOME/forticlient-sso-auto-connect`) na variável PATH no ~/.bashrc ou ~/.zshrc como no exemplo abaixo:
    ```sh
    export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$HOME/forticlient-sso-auto-connect:$PATH

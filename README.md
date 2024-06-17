@@ -100,10 +100,6 @@ Este repositório contém um script Python que automatiza o processo de conexão
     vpn-auto-connect --upgrade
     ```
 
-## Autor
-
-[Rafael Costa Biasi](https://rafaelbiasi.com.br/)
-
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.

@@ -218,6 +218,11 @@ def main():
     vpn_slice = config['vpn_slice']
     lan_enabled = not args.off
 
+    # Verificar atualizações no início da execução do script
+    if check_for_updates():
+        print("Há atualizações disponíveis. Por favor, atualize o script para a versão mais recente.")
+        input("Pressione Enter para continuar...")
+
     driver = configure_driver(args)
     hostHttps = f"https://{host}/"
 

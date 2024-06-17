@@ -33,7 +33,8 @@ Este repositório contém um script Python que automatiza o processo de conexão
     sudo apt install python3-dev python3-pip python3-setuptools
     vpn-auto-connect --install
     ```
-3. Variável PATH:
+3. Adicione o caminho a variável PATH:
+   
    Para maior comodidade adicione o caminho do script (`$HOME/forticlient-sso-auto-connect`) na variável PATH no ~/.bashrc ou ~/.zshrc como no exemplo abaixo:
    ```sh
    export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$HOME/forticlient-sso-auto-connect:$PATH

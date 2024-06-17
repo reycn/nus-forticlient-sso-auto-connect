@@ -1,0 +1,202 @@
+#!/usr/bin/env python3
+
+"""
+Autor: Rafael Costa Biasi [https://rafaelbiasi.com.br/] [https://github.com/rafaelbiasi]
+Versão: 1.0.0
+"""
+
+import os
+import subprocess
+import argparse
+import json
+import time
+import base64
+import getpass
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+
+CONFIG_FILE = 'vpn-config.json'
+
+def load_config():
+    print('Carregando configuração.')
+    with open(CONFIG_FILE, 'r') as f:
+        return json.load(f)
+
+def save_config(config):
+    print('Salvando configuração.')
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(config, f, indent=4)
+
+def install_packages():
+    print('Instalando dependências.')
+    os.system('sudo apt update')
+    os.system('sudo apt install -y openconnect openssl')
+    os.system('pip3 install selenium webdriver_manager cryptography')
+    os.system('sudo pip3 install "vpn-slice[dnspython,setproctitle]"')
+
+def encrypt_password(password, sudo_password):
+    print('Criptografando senha.')
+    command = f"echo -n {password} | openssl enc -e -pbkdf2 -a -nosalt -pass pass:{sudo_password}"
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise Exception(f"Erro ao criptografar senha: {result.stderr}")
+    return result.stdout.strip()
+
+def decrypt_password(encrypted_password, sudo_password):
+    print('Descriptografando senha.')
+    command = f"echo -n {encrypted_password} | openssl enc -d -pbkdf2 -a -A -nosalt -pass pass:{sudo_password}"
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise Exception(f"Erro ao descriptografar senha: {result.stderr}")
+    return result.stdout.strip()
+
+def configure_driver(args):
+    print('Configurando web driver.')
+    chrome_options = webdriver.ChromeOptions()
+    if not args.manual and not args.browser:
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--window-size=720,540')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--ignore-ssl-errors')
+    return webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+
+def wait_for_page_load(driver, timeout=30):
+    print('Esperando pagina carregar.')
+    WebDriverWait(driver, timeout).until(
+        lambda d: d.execute_script('return document.readyState') == 'complete'
+    )
+    time.sleep(1)
+
+def automate_login(driver, host, username, password):
+    print('Login automático.')
+    driver.get(host)
+    wait_for_page_load(driver)
+
+    email_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.NAME, "loginfmt"))
+    )
+    email_field.send_keys(username)
+
+    next_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, "idSIButton9"))
+    )
+    next_button.click()
+    wait_for_page_load(driver)
+
+    password_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.NAME, "passwd"))
+    )
+    password_field.send_keys(password)
+
+    sign_in_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, "idSIButton9"))
+    )
+    sign_in_button.click()
+    wait_for_page_load(driver)
+
+    dont_show_checkbox = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "KmsiCheckboxField"))
+    )
+    dont_show_checkbox.click()
+
+    yes_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, "idSIButton9"))
+    )
+    yes_button.click()
+    wait_for_page_load(driver)
+
+    cookie = driver.get_cookie("SVPNCOOKIE")['value']
+    driver.quit()
+    return cookie
+
+def manual_login(driver, host):
+    print('Login manual.')
+    driver.get(host)
+    print("Por favor, faça o login manualmente...")
+    while not driver.get_cookie("SVPNCOOKIE"):
+        time.sleep(1)
+    cookie = driver.get_cookie("SVPNCOOKIE")['value']
+    driver.quit()
+    return cookie
+
+def connect_vpn(cookie, host, lan_enabled, server_cert, vpn_slice):
+    print('Conectando na vpn.')
+    command = f"sudo openconnect --protocol=fortinet {host} --servercert {server_cert} --cookie=SVPNCOOKIE={cookie}"
+    if lan_enabled:
+        command += " -s 'vpn-slice " + vpn_slice + "'"
+    os.system(command)
+
+def keep_sudo_alive():
+    print('Mantendo o sudo vivo.')
+    while True:
+        os.system('sudo -v')
+        time.sleep(60)
+
+def parse_arguments():
+    print('Configurando argumentos.')
+    parser = argparse.ArgumentParser(description="Script unificado para conexão VPN.")
+    parser.add_argument('--install', action='store_true', help='Instala os pacotes necessários.')
+    parser.add_argument('--off', action='store_true', help='Conecta ao VPN com LAN desabilitada.')
+    parser.add_argument('--manual', action='store_true', help='Usa a execução manual do script de cookies.')
+    parser.add_argument('--browser', action='store_true', help='Mostra a execução do login SSO no navegador.')
+    parser.add_argument('--host', type=int, choices=[1, 2], default=1, help='Define o host VPN para a conexão.')
+    parser.add_argument('--encrypt', action='store_true', help='Criptografa a senha para ser usada no script.')
+    parser.add_argument('--password', action='store_true', help='Sempre pede a senha do sudo para descriptografar a senha criptografada.')
+    parser.add_argument('--update', action='store_true', help='Verifica se há atualização do script')
+    parser.add_argument('--upgrade', action='store_true', help='Atualiza scritp')
+    return parser.parse_args()
+
+def main():
+    print('Iniciando vpn.')
+    args = parse_arguments()
+    config = load_config()
+
+    if args.install:
+        install_packages()
+        return
+
+    if args.encrypt:
+        sudo_password = getpass.getpass("Digite a senha do sudo: ")
+        plain_password = getpass.getpass("Digite a senha que deseja criptografar: ")
+        encrypted_password = encrypt_password(plain_password, sudo_password)
+        config['encrypted-password'] = encrypted_password
+        save_config(config)
+        print("Senha criptografada salva no arquivo de configuração.")
+        return
+
+    if args.password:
+        os.system('sudo -k')
+        sudo_password = getpass.getpass("Digite a senha do sudo: ")
+        password = decrypt_password(config['encrypted-password'], sudo_password)
+        command = f"echo -n {sudo_password} | sudo -S true 2>/dev/null"
+        result = subprocess.run(command, shell=True, capture_output=False, text=True)
+    else:
+        password = config['password']
+        os.system('sudo -v')
+
+    host = config['host_mapping'][str(args.host)]
+    username = config['username']
+    server_cert = config['server_cert']
+    vpn_slice = config['vpn_slice']
+    lan_enabled = not args.off
+
+    driver = configure_driver(args)
+    hostHttps = f"https://{host}/"
+
+    print('Host selecionado: ' + host)
+
+    if args.manual:
+        cookie = manual_login(driver, hostHttps)
+    else:
+        cookie = automate_login(driver, hostHttps, username, password)
+
+    connect_vpn(cookie, host, lan_enabled, server_cert, vpn_slice)
+    keep_sudo_alive()
+
+if __name__ == "__main__":
+    main()

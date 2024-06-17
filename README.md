@@ -47,8 +47,8 @@ Este repositório contém um script Python que automatiza o processo de conexão
     ```json
     {
         "username": "seu_usuario",
-        "password": "sua_senha",
-        "encrypted-password": "sua_senha_criptografada",
+        "password": "sua_senha_aqui_NAO_recomendado",
+        "encrypted-password": "sua_senha_aqui_RECOMENDADO_usar_a_opcao_--encrypt",
         "host_mapping": {
             "1": "vpn1.exemplo.com.br",
             "2": "vpn2.exemplo.com.br"

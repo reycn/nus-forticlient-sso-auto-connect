@@ -2,7 +2,7 @@
 
 """
 Autor: Rafael Costa Biasi [https://rafaelbiasi.com.br/] [https://github.com/rafaelbiasi]
-Versão: 1.0.1
+Versão: 1.0.2
 """
 
 import os
@@ -12,6 +12,7 @@ import json
 import time
 import base64
 import getpass
+from cryptography.fernet import Fernet
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -22,6 +23,27 @@ from webdriver_manager.chrome import ChromeDriverManager
 # Obtém o diretório onde o script está localizado
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, 'vpn-config.json')
+KEY_FILE = os.path.join(SCRIPT_DIR, 'secret.key')
+
+def generate_key():
+    key = Fernet.generate_key()
+    with open(KEY_FILE, 'wb') as key_file:
+        key_file.write(key)
+    return key
+
+def load_key():
+    if os.path.exists(KEY_FILE):
+        return open(KEY_FILE, 'rb').read()
+    else:
+        return generate_key()
+
+def encrypt_password(password, key):
+    f = Fernet(key)
+    return f.encrypt(password.encode())
+
+def decrypt_password(encrypted_password, key):
+    f = Fernet(key)
+    return f.decrypt(encrypted_password).decode()
 
 def load_config():
     print('Carregando configuração.')
@@ -35,26 +57,10 @@ def save_config(config):
 
 def install_packages():
     print('Instalando dependências.')
-    os.system('sudo apt update')
-    os.system('sudo apt install -y openconnect openssl')
-    os.system('pip3 install selenium webdriver_manager cryptography')
-    os.system('sudo pip3 install "vpn-slice[dnspython,setproctitle]"')
-
-def encrypt_password(password, sudo_password):
-    print('Criptografando senha.')
-    command = f"echo -n {password} | openssl enc -e -pbkdf2 -a -nosalt -pass pass:{sudo_password}"
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise Exception(f"Erro ao criptografar senha: {result.stderr}")
-    return result.stdout.strip()
-
-def decrypt_password(encrypted_password, sudo_password):
-    print('Descriptografando senha.')
-    command = f"echo -n {encrypted_password} | openssl enc -d -pbkdf2 -a -A -nosalt -pass pass:{sudo_password}"
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise Exception(f"Erro ao descriptografar senha: {result.stderr}")
-    return result.stdout.strip()
+    subprocess.run(['sudo', 'apt', 'update'], check=True)
+    subprocess.run(['sudo', 'apt', 'install', '-y', 'openconnect', 'openssl'], check=True)
+    subprocess.run(['pip3', 'install', 'selenium', 'webdriver_manager', 'cryptography'], check=True)
+    subprocess.run(['sudo', 'pip3', 'install', 'vpn-slice[dnspython,setproctitle]'], check=True)
 
 def configure_driver(args):
     print('Configurando web driver.')
@@ -68,7 +74,7 @@ def configure_driver(args):
     return webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
 
 def wait_for_page_load(driver, timeout=30):
-    print('Esperando pagina carregar.')
+    print('Esperando página carregar.')
     WebDriverWait(driver, timeout).until(
         lambda d: d.execute_script('return document.readyState') == 'complete'
     )
@@ -128,15 +134,15 @@ def manual_login(driver, host):
 
 def connect_vpn(cookie, host, lan_enabled, server_cert, vpn_slice):
     print('Conectando na vpn.')
-    command = f"sudo openconnect --protocol=fortinet {host} --servercert {server_cert} --cookie=SVPNCOOKIE={cookie}"
+    command = ['sudo', 'openconnect', '--protocol=fortinet', host, '--servercert', server_cert, f'--cookie=SVPNCOOKIE={cookie}']
     if lan_enabled:
-        command += " -s 'vpn-slice " + vpn_slice + "'"
-    os.system(command)
+        command.extend(['-s', f'vpn-slice {vpn_slice}'])
+    subprocess.run(command, check=True)
 
 def keep_sudo_alive():
     print('Mantendo o sudo vivo.')
     while True:
-        os.system('sudo -v')
+        subprocess.run(['sudo', '-v'])
         time.sleep(60)
 
 def check_for_updates():
@@ -168,7 +174,7 @@ def parse_arguments():
     parser.add_argument('--browser', action='store_true', help='Mostra a execução do login SSO no navegador.')
     parser.add_argument('--host', type=int, choices=[1, 2], default=1, help='Define o host VPN para a conexão.')
     parser.add_argument('--encrypt', action='store_true', help='Criptografa a senha para ser usada no script.')
-    parser.add_argument('--password', action='store_true', help='Sempre pede a senha do sudo para descriptografar a senha criptografada.')
+    parser.add_argument('--plain', action='store_true', help='Usa a senha em texto claro (não recomendável).')
     parser.add_argument('--update', action='store_true', help='Verifica se há atualização do script.')
     parser.add_argument('--upgrade', action='store_true', help='Atualiza o script.')
     return parser.parse_args()
@@ -177,6 +183,7 @@ def main():
     print('Iniciando vpn.')
     args = parse_arguments()
     config = load_config()
+    key = load_key()
 
     if args.install:
         install_packages()
@@ -185,8 +192,8 @@ def main():
     if args.encrypt:
         sudo_password = getpass.getpass("Digite a senha do sudo: ")
         plain_password = getpass.getpass("Digite a senha que deseja criptografar: ")
-        encrypted_password = encrypt_password(plain_password, sudo_password)
-        config['encrypted-password'] = encrypted_password
+        encrypted_password = encrypt_password(plain_password, key)
+        config['encrypted-password'] = encrypted_password.decode()
         save_config(config)
         print("Senha criptografada salva no arquivo de configuração.")
         return
@@ -202,15 +209,14 @@ def main():
         upgrade_script()
         return
 
-    if args.password:
-        os.system('sudo -k')
-        sudo_password = getpass.getpass("Digite a senha do sudo: ")
-        password = decrypt_password(config['encrypted-password'], sudo_password)
-        command = f"echo -n {sudo_password} | sudo -S true 2>/dev/null"
-        result = subprocess.run(command, shell=True, capture_output=False, text=True)
-    else:
+    if args.plain:
+        print("Aviso: Usar a senha em texto claro não é recomendável.")
         password = config['password']
-        os.system('sudo -v')
+    else:
+        sudo_password = getpass.getpass("Digite a senha do sudo: ")
+        password = decrypt_password(config['encrypted-password'].encode(), key)
+        command = ['echo', '-n', sudo_password, '|', 'sudo', '-S', 'true', '2>/dev/null']
+        subprocess.run(command, shell=True, capture_output=False, text=True)
 
     host = config['host_mapping'][str(args.host)]
     username = config['username']

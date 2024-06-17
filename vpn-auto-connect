@@ -141,10 +141,10 @@ def keep_sudo_alive():
 
 def check_for_updates():
     print('Verificando atualizações.')
-    result = subprocess.run(['git', 'fetch'], capture_output=True, text=True)
+    result = subprocess.run(['git', 'fetch'], capture_output=True, text=True, cwd=SCRIPT_DIR)
     if result.returncode != 0:
         raise Exception("Erro ao verificar atualizações.")
-    result = subprocess.run(['git', 'status'], capture_output=True, text=True)
+    result = subprocess.run(['git', 'status'], capture_output=True, text=True, cwd=SCRIPT_DIR)
     if 'Your branch is up to date' in result.stdout:
         print('Nenhuma atualização disponível.')
         return False
@@ -154,7 +154,7 @@ def check_for_updates():
 
 def upgrade_script():
     print('Atualizando script.')
-    result = subprocess.run(['git', 'pull'], capture_output=True, text=True)
+    result = subprocess.run(['git', 'pull'], capture_output=True, text=True, cwd=SCRIPT_DIR)
     if result.returncode != 0:
         raise Exception("Erro ao atualizar script.")
     print('Script atualizado com sucesso.')

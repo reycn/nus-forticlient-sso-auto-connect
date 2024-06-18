@@ -2,7 +2,7 @@
 
 """
 Autor: Rafael Costa Biasi [https://rafaelbiasi.com.br/] [https://github.com/rafaelbiasi]
-Versão: 1.0.2
+Versão: 1.0.3
 """
 
 import os
@@ -173,11 +173,33 @@ def parse_arguments():
     parser.add_argument('--manual', action='store_true', help='Usa a execução manual do script de cookies.')
     parser.add_argument('--browser', action='store_true', help='Mostra a execução do login SSO no navegador.')
     parser.add_argument('--host', type=int, choices=[1, 2], default=1, help='Define o host VPN para a conexão.')
-    parser.add_argument('--encrypt', action='store_true', help='Criptografa a senha para ser usada no script.')
+    parser.add_argument('--setup', action='store_true', help='Configura o arquivo vpn-config.json.')
     parser.add_argument('--plain', action='store_true', help='Usa a senha em texto claro (não recomendável).')
     parser.add_argument('--update', action='store_true', help='Verifica se há atualização do script.')
     parser.add_argument('--upgrade', action='store_true', help='Atualiza o script.')
     return parser.parse_args()
+
+def setup_config():
+    config = load_config()
+    for key, value in config.items():
+        if key == 'encrypted-password' or key == 'password':
+            continue
+        change = input(f'Deseja mudar a configuração de "{key}" (atual: {value})? (y/N): ').strip().lower()
+        if change == 'y':
+            new_value = input(f'Insira o novo valor para "{key}": ').strip()
+            config[key] = new_value
+
+    save_config(config)
+
+    change_password = input('Deseja mudar a senha criptografada? (y/N): ').strip().lower()
+    if change_password == 'y':
+        sudo_password = getpass.getpass("Digite a senha do sudo: ")
+        plain_password = getpass.getpass("Digite a nova senha que deseja criptografar: ")
+        key = load_key()
+        encrypted_password = encrypt_password(plain_password, key)
+        config['encrypted-password'] = encrypted_password.decode()
+        save_config(config)
+        print("Nova senha criptografada salva no arquivo de configuração.")
 
 def main():
     print('Iniciando vpn.')
@@ -189,13 +211,8 @@ def main():
         install_packages()
         return
 
-    if args.encrypt:
-        sudo_password = getpass.getpass("Digite a senha do sudo: ")
-        plain_password = getpass.getpass("Digite a senha que deseja criptografar: ")
-        encrypted_password = encrypt_password(plain_password, key)
-        config['encrypted-password'] = encrypted_password.decode()
-        save_config(config)
-        print("Senha criptografada salva no arquivo de configuração.")
+    if args.setup:
+        setup_config()
         return
 
     if args.update:

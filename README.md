@@ -4,11 +4,12 @@ Script de Automação para Conexão VPN
 
 ## Descrição
 
-Este repositório contém um script Python que automatiza o processo de conexão a uma VPN usando OpenConnect e Selenium para login SSO. O script oferece funcionalidades para instalação de dependências, criptografia de senhas, execução manual ou automática do login, e manutenção da sessão sudo ativa.
+Este repositório contém um script Python que automatiza o processo de conexão a uma VPN usando OpenConnect e Selenium para login SSO. O script oferece funcionalidades para instalação de dependências, configuração interativa, execução manual ou automática do login, e manutenção da sessão sudo ativa.
 
 ## Funcionalidades
 
 - Instalação de pacotes necessários
+- Configuração interativa via wizard
 - Criptografia e descriptografia de senhas usando a biblioteca `cryptography`
 - Automação do login SSO utilizando Selenium
 - Suporte a execução manual do login
@@ -48,7 +49,7 @@ Este repositório contém um script Python que automatiza o processo de conexão
     {
         "username": "seu_usuario",
         "password": "sua_senha_aqui_NAO_recomendado",
-        "encrypted-password": "sua_senha_aqui_RECOMENDADO_usar_a_opcao_--encrypt",
+        "encrypted-password": "sua_senha_aqui_RECOMENDADO_usar_a_opcao_--setup",
         "host_mapping": {
             "1": "vpn1.exemplo.com.br",
             "2": "vpn2.exemplo.com.br"
@@ -59,9 +60,9 @@ Este repositório contém um script Python que automatiza o processo de conexão
     ```
    Escolha uma das duas opções: `password` e `encrypted-password`. Caso deseje mais segurança, siga o procedimento abaixo para criptografar a senha. Se não, a opção `password` é de preenchimento obrigatório.
 
-2. Criptografe a senha (opcional e recomendado):
+2. Configure o script interativamente:
     ```bash
-    vpn-auto-connect --encrypt
+    vpn-auto-connect --setup
     ```
 
 ### Conectando à VPN

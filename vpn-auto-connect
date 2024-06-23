@@ -2,7 +2,7 @@
 
 """
 Autor: Rafael Costa Biasi [https://rafaelbiasi.com.br/] [https://github.com/rafaelbiasi]
-Versão: 1.0.4
+Versão: 1.0.5
 """
 
 import os
@@ -229,6 +229,8 @@ def main():
     if args.plain:
         print("Aviso: Usar a senha em texto claro não é recomendável.")
         password = config['password']
+        command = ['sudo', '-v']
+        subprocess.run(command, check=True)
     else:
         sudo_password = getpass.getpass("Digite a senha do sudo: ")
         password = decrypt_password(config['encrypted-password'].encode(), key)

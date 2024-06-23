@@ -1,4 +1,4 @@
-# vpn-auto-connect
+# forticlient-vpn-auto-connect
 
 Script de Automação para Conexão VPN
 

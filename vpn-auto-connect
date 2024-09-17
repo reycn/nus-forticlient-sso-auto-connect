@@ -172,7 +172,7 @@ def parse_arguments():
     parser.add_argument('--off', action='store_true', help='Conecta ao VPN com LAN desabilitada.')
     parser.add_argument('--manual', action='store_true', help='Usa a execução manual do script de login. Implica --browser automaticamente')
     parser.add_argument('--browser', action='store_true', help='Mostra a execução do login SSO no navegador.')
-    parser.add_argument('--host', type=int, choices=[1, 2], default=1, help='Define o host VPN para a conexão.')
+    parser.add_argument('--host', type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], default=1, help='Define o host VPN para a conexão.')
     parser.add_argument('--setup', action='store_true', help='Configura o arquivo vpn-config.json.')
     parser.add_argument('--plain', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--update', action='store_true', help='Verifica se há atualização do script.')

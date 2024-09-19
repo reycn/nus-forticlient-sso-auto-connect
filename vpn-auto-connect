@@ -134,7 +134,7 @@ def manual_login(driver, host):
 
 def connect_vpn(cookie, host, lan_enabled, server_cert, vpn_slice):
     print('Conectando na vpn.')
-    command = ['sudo', 'openconnect', '--protocol=fortinet', host, '--servercert', server_cert, f'--cookie=SVPNCOOKIE={cookie}']
+    command = ['sudo', 'openconnect', '--no-dtls', '--protocol=fortinet', host, '--servercert', server_cert, f'--cookie=SVPNCOOKIE={cookie}']
     if lan_enabled:
         command.extend(['-s', f'vpn-slice {vpn_slice}'])
     subprocess.run(command, check=True)

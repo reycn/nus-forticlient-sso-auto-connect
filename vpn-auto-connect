@@ -24,7 +24,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE = None  # Will be set in main()
+CONFIG_FILE = None
 
 
 def encrypt_password(password, sudo_password, salt):
@@ -268,7 +268,6 @@ def main():
     print('Iniciando vpn.')
     args = parse_arguments()
 
-    # Set CONFIG_FILE based on args.file
     global CONFIG_FILE
     if args.file:
         CONFIG_FILE = args.file
@@ -285,7 +284,7 @@ def main():
 
     if args.update:
         if check_for_updates():
-            print("Há atualizações disponíveis. Use o parâmetro --upgrade para atualizar o script.")
+            print("Há atualizações disponíveis. Use o parâmetro `--upgrade` para atualizar o script ou execute `git pull` no repositorio.")
         else:
             print("O script está atualizado.")
         return

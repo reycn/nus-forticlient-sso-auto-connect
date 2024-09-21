@@ -169,7 +169,6 @@ def connect_vpn(cookie, host, lan_enabled, server_cert, vpn_slice, verbose=False
     command = [
         'openconnect',
         '--no-dtls',
-        '--reconnect-timeout',
         '--protocol=fortinet',
         host,
         '--servercert',

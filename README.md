@@ -1,10 +1,14 @@
-# NUS-forticlient-vpn-auto-connect
+# NUS-Forticlient-VPN-Auto-Connect
 
 VPN Connection Automation Script for NUS SOC VPN, with SSO and OTP support.
 
 ## Edits compared to the original repository
 - Auto-paste OTP codes in clipboard
 - Adapted the process to NUS SOC VPN
+
+***
+> *The following docs are translated by ChatGPT 4o from Portuguese, which may not bee precise.*
+***
 
 ## Description
 

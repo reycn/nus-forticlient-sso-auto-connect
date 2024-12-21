@@ -1,0 +1,11 @@
+{
+    "username": "studentid@u.nus.edu",
+    "password": "password",
+    "salt": "sua_senha_aqui_RECOMENDADO_usar_a_opcao_--setup",
+    "encrypted-password": "sua_senha_aqui_RECOMENDADO_usar_a_opcao_--setup",
+    "host_mapping": {
+        "1": "webvpn.comp.nus.edu.sg"
+    },
+    "server_cert": "pin-sha256:Zq3VJEUUn31x8eyX3PpyFD5kENq+ITIFB6omrCdGDSo=",
+    "vpn_slice": "address.comp.nus.edu.sg"
+}

@@ -1,113 +1,117 @@
-# forticlient-vpn-auto-connect
+# NUS-forticlient-vpn-auto-connect
 
-Script de Automação para Conexão VPN
+VPN Connection Automation Script for NUS SOC VPN, with SSO and OTP support.
 
-## Descrição
+## Edits compared with the origional repo
+- Auto-paste OTP codes in clipboard
+- Adapted the process to NUS SOC VPN
 
-Este repositório contém um script Python que automatiza o processo de conexão a uma VPN usando OpenConnect e Selenium para login SSO. O script oferece funcionalidades para instalação de dependências, configuração interativa, execução manual ou automática do login, e manutenção da sessão sudo ativa.
+## Description
 
-## Funcionalidades
+This repository contains a Python script that automates the process of connecting to a VPN using OpenConnect and Selenium for SSO login. The script offers functionalities for dependency installation, interactive configuration, manual or automatic login execution, and keeping the sudo session active.
 
-- Instalação de pacotes necessários
-- Configuração interativa via wizard
-- Criptografia e descriptografia de senhas usando a biblioteca `cryptography`
-- Automação do login SSO utilizando Selenium
-- Suporte a execução manual do login
-- Conexão automática à VPN utilizando cookies gerados
-- Manutenção da sessão sudo ativa
+## Features
 
-## Requisitos
+- Installation of necessary packages
+- Interactive configuration via wizard
+- Encryption and decryption of passwords using the `cryptography` library
+- SSO login automation using Selenium
+- Support for manual login execution
+- Automatic VPN connection using generated cookies
+- Keeping the sudo session active
+
+## Requirements
 
 - Python 3
-- Sistema operacional baseado em Unix (Linux, macOS)
-- Navegador Google Chrome
+- Unix-based operating system (Linux, macOS)
+- Google Chrome browser
 
-## Instalação
+## Installation
 
-1. Clone o repositório:
+1. Clone the repository:
     ```bash
     git clone https://github.com/rafaelbiasi/forticlient-sso-auto-connect.git
     cd forticlient-sso-auto-connect
     ```
-2. Instale as dependências:
+2. Install the dependencies:
     ```bash
     sudo apt install python3-dev python3-pip python3-setuptools
     vpn-auto-connect --install
     ```
-3. Adicione o caminho à variável PATH:
+3. Add the path to the PATH variable:
    
-   Para maior comodidade, adicione o caminho do script (`$HOME/forticlient-sso-auto-connect`) na variável PATH no ~/.bashrc ou ~/.zshrc como no exemplo abaixo:
+   For convenience, add the script path (`$HOME/forticlient-sso-auto-connect`) to the PATH variable in ~/.bashrc or ~/.zshrc as shown below:
    ```sh
    export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$HOME/forticlient-sso-auto-connect:$PATH
    ```
-## Uso
+## Usage
 
-### Configuração Inicial
+### Initial Configuration
 
-1. Crie um arquivo de configuração `vpn-config.json` no mesmo diretório do script com o seguinte formato:
+1. Create a configuration file `vpn-config.json` in the same directory as the script with the following format:
     ```json
     {
-        "username": "seu_usuario",
-        "password": "sua_senha_aqui_NAO_recomendado",
-        "encrypted-password": "sua_senha_aqui_RECOMENDADO_usar_a_opcao_--setup",
+        "username": "your_username",
+        "password": "your_password_here_NOT_recommended",
+        "encrypted-password": "your_password_here_RECOMMENDED_use_the_--setup_option",
         "host_mapping": {
-            "1": "vpn1.exemplo.com.br",
-            "2": "vpn2.exemplo.com.br"
+            "1": "vpn1.example.com",
+            "2": "vpn2.example.com"
         },
         "server_cert": "pin-sha256:...",
         "vpn_slice": "..."
     }
     ```
-   Escolha uma das duas opções: `password` e `encrypted-password`. Caso deseje mais segurança, siga o procedimento abaixo para criptografar a senha. Se não, a opção `password` é de preenchimento obrigatório.
+   Choose one of the two options: `password` and `encrypted-password`. For more security, follow the procedure below to encrypt the password. Otherwise, the `password` option is mandatory.
 
-2. Configure o script interativamente:
+2. Configure the script interactively:
     ```bash
     vpn-auto-connect --setup
     ```
 
-### Conectando à VPN
-1. Exibe a ajuda:
+### Connecting to the VPN
+1. Display help:
     ```bash
     vpn-auto-connect --help
     ```
     
-2. Conectar com login automático (usando senha criptografada):
+2. Connect with automatic login (using encrypted password):
     ```bash
     vpn-auto-connect
     ```
 
-3. Conectar com senha em texto claro (não recomendado):
+3. Connect with plain text password (not recommended):
     ```bash
     vpn-auto-connect --plain
     ```
 
-4. Conectar com login manual:
+4. Connect with manual login:
     ```bash
     vpn-auto-connect --manual
     ```
 
-5. Conectar com LAN desabilitada:
+5. Connect with LAN disabled:
     ```bash
     vpn-auto-connect --off
     ```
 
-6. Forçar a exibição do navegador durante o login SSO:
+6. Force the browser to display during SSO login:
     ```bash
     vpn-auto-connect --browser
     ```
 
-### Outras Opções
+### Other Options
 
-- Verificar se há atualizações para o script:
+- Check for script updates:
     ```bash
     vpn-auto-connect --update
     ```
 
-- Atualizar o script:
+- Update the script:
     ```bash
     vpn-auto-connect --upgrade
     ```
 
-## Licença
+## License
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

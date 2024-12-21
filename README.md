@@ -7,7 +7,7 @@ VPN Connection Automation Script for NUS SOC VPN, with SSO and OTP support.
 - Adapted the process to NUS SOC VPN
 
 ***
-> *The following docs are translated by ChatGPT 4o from Portuguese, which may not bee precise.*
+> *The following documents were automatically translated from Portuguese by OpenAI gpt-4o and may not be entirely accurate.*
 ***
 
 ## Description

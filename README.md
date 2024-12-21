@@ -2,7 +2,7 @@
 
 VPN Connection Automation Script for NUS SOC VPN, with SSO and OTP support.
 
-## Edits compared with the origional repo
+## Edits compared to the original repository
 - Auto-paste OTP codes in clipboard
 - Adapted the process to NUS SOC VPN
 
